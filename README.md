@@ -16,7 +16,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.alliancels:documentation-gradle-plugins:0.0.14'
+        classpath 'com.alliancels:documentation-gradle-plugins:0.0.15'
     }
 }
 ```
