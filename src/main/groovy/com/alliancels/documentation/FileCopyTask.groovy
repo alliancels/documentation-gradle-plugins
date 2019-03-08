@@ -20,10 +20,13 @@ class FileCopyTask extends SourceTask {
         }
 
         inputs.outOfDate {
-
             File outputFile = getOutputFile(it.file)
-            new AntBuilder().copy( file:"$it.file.canonicalPath",
-                    tofile:"$outputFile.canonicalPath")
+
+            def sourceStream = new File(it.file.canonicalPath).newDataInputStream()
+            def destinationStream = new File(outputFile.canonicalPath).newDataOutputStream()
+            destinationStream << sourceStream
+            sourceStream.close()
+            destinationStream.close()
         }
 
         inputs.removed {
