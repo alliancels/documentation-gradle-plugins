@@ -75,6 +75,13 @@ class DocumentationPlugin implements Plugin<Project> {
                 include "${it}/**/section.html"
             }
         }
+        
+        project.task("combine${document.name}", type: CombineDocsTask) {
+            description = "Create combined pages for the ${document.name} document."
+            include "**/layout.yaml"
+            documentSourceDirs = document.sourceFolders
+            source document.sourceFolders
+        }
 
         project.task("check${document.name}", type: CheckDocumentTask) {
             description = "Check the ${document.name} document for problems."
