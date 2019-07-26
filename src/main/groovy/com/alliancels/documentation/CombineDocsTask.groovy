@@ -50,8 +50,23 @@ class CombineDocsTask extends SourceTask {
             navigateDocDirectoryToBuildAllInOnePage(rootSection, docBeingGenerated)
 			navigateDocDirectoryToBuildAllInOnePage(rootSection, individualDocBeingGenerated)
 			println('\n')
+			
+            //Remove unwanted hmtl bits (hide next and previous links and move headers to above individual sections)
+            String contents = new File("${project.buildDir}/documentation/All/${it}.html").getText( 'UTF-8' )
+            contents = contents.replaceAll("<header>", '')
+            contents = contents.replaceAll("</header>", '')
+            contents = contents.replaceAll(">Previous<", "><")
+            contents = contents.replaceAll(">Next<", "><")
+            individualDocBeingGenerated.text = contents
 		}
-
+		
+		//Remove unwanted hmtl bits (hide next and previous links and move headers to above individual sections)
+		String contents = new File("${project.buildDir}/documentation/All/AllDocsInOne.html").getText( 'UTF-8' )
+		contents = contents.replaceAll("<header>", '')
+		contents = contents.replaceAll("</header>", '')
+		contents = contents.replaceAll(">Previous<", "><")
+		contents = contents.replaceAll(">Next<", "><")
+		docBeingGenerated.text = contents
     }
 	
 	void navigateDocDirectoryToBuildAllInOnePage(Section section, File file) {
