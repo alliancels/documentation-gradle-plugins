@@ -33,6 +33,26 @@ class FileCopyTask extends SourceTask {
                 destinationStream << sourceStream
                 sourceStream.close()
                 destinationStream.close()
+                
+                //Create new file path for all images
+                File allImagesPath = new File("${project.buildDir}/documentation/All/Images/")
+                //Generate directory for path if not already done
+                if(!allImagesPath.exists())
+                {
+                    allImagesPath.mkdirs()
+                }
+                //Create new file for image to be copied
+                File imageBeingCopied = new File(allImagesPath, it.file.name)
+                //Define stream for moving file from
+                def sourceStreamAll = new File(it.file.canonicalPath).newDataInputStream()
+                //Define stream for moving file to
+                def desinationStreamAll = new File(imageBeingCopied.canonicalPath).newDataOutputStream()
+                //Move file
+                desinationStreamAll << sourceStreamAll
+                //Close streams 
+                sourceStreamAll.close()
+                desinationStreamAll.close()
+                println("Moved all images")
             }
         }
 
