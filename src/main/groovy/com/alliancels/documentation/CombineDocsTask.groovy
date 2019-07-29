@@ -25,7 +25,7 @@ class CombineDocsTask extends SourceTask {
         source.each {
             sections.add((new LayoutParser()).createSection(it))
         }
-        createAllInOnePage()
+        createCombinedDocs()
     }
 
     String getRelativePath(File file, File root) {
@@ -34,80 +34,72 @@ class CombineDocsTask extends SourceTask {
         return relativePathCrossPlatform
     }
 
-    void createAllInOnePage() {
+    void createCombinedDocs() {
 
+        //Create empty file for all in one combined doc
         File docBeingGenerated = new File("${project.buildDir}/documentation/All/AllDocsCombined.html")
         docBeingGenerated.createNewFile()
         docBeingGenerated.text = ''
+        println("Generated combined doc/page for: AllDocsCombined")
         
+        //Create a combined doc page for each folder in source directory
         documentSourceDirs.each {
-            println("Name of document: $it")
             File individualDocBeingGenerated = new File("${project.buildDir}/documentation/All/${it}.html")
             individualDocBeingGenerated.createNewFile()
             individualDocBeingGenerated.text = ''
+            println("Generated combined doc/page for: $it")
         
+            //The order of how each page is added to the combined page matches the order followed in navigation
+            //Add page individual document as well as all combined document
             def rootSection = Section.findSection(sections, new File(project.projectDir, it))
-            navigateDocDirectoryToBuildAllInOnePage(rootSection, docBeingGenerated)
-			navigateDocDirectoryToBuildAllInOnePage(rootSection, individualDocBeingGenerated)
-			println('\n')
+            navigateDocDirectoryToBuildCombinedPage(rootSection, docBeingGenerated)
+			navigateDocDirectoryToBuildCombinedPage(rootSection, individualDocBeingGenerated)
 			
-            //Remove unwanted hmtl bits (hide next and previous links and move headers to above individual sections)
-            String contents = new File("${project.buildDir}/documentation/All/${it}.html").getText( 'UTF-8' )
-            contents = contents.replaceAll("<header>", '')
-            contents = contents.replaceAll("</header>", '')
-            contents = contents.replaceAll(">Previous<", "><")
-            contents = contents.replaceAll(">Next<", "><")
-            individualDocBeingGenerated.text = contents
+            //Clean up (remove) unwanted html bits (hide next and previous links and move headers to above individual sections)
+            cleanUpCombinedDocHTML(individualDocBeingGenerated)
             
             //Add combined link to navigation page
             String addDocToNav = "${it}"
             addCombinedLinksToNavigation(addDocToNav)
 		}
 		
-		//Remove unwanted hmtl bits (hide next and previous links and move headers to above individual sections)
-		String contents = new File("${project.buildDir}/documentation/All/AllDocsCombined.html").getText( 'UTF-8' )
-		contents = contents.replaceAll("<header>", '')
-		contents = contents.replaceAll("</header>", '')
-		contents = contents.replaceAll(">Previous<", "><")
-		contents = contents.replaceAll(">Next<", "><")
-		docBeingGenerated.text = contents
-        
+        //Clean up (remove) unwanted html bits (hide next and previous links and move headers to above individual sections)
+        cleanUpCombinedDocHTML(docBeingGenerated)
+		
         //Add combined link to navigation page 
         String addCombinedDocToNav = "AllDocsCombined"
         addCombinedLinksToNavigation(addCombinedDocToNav)
     }
 	
-	void navigateDocDirectoryToBuildAllInOnePage(Section section, File file) {
+	void navigateDocDirectoryToBuildCombinedPage(Section section, File file) {
 		
 		Section sectionToBeAdd = section
 		
-		int testVar = 0
-		
+		//Loop through all sections (all pages in document)
 		while (sectionToBeAdd != null)
 		{
-            //Get relative path to sectionToBeAdd
+            //Get relative path to section to be added
             String pathToAdd = getRelativePath(sectionToBeAdd.folder, project.projectDir)
-            println("$testVar: Adding path: " + pathToAdd)
 		
-            //Create link for sectionToBeAdd
-            String link = pathToAdd + "/section.html"
-            println("$testVar: Adding link: " + link)
+            //Create link for section to be added
+            String linkToAdd = pathToAdd + "/section.html"
 		
-            //Append link to file
-            File htmlToAppend = new File("${project.buildDir}/documentation/All/$link")
-            println("$testVar: Appending this html: " + htmlToAppend)
+            //Append section to combined page
+            File htmlToAppend = new File("${project.buildDir}/documentation/All/$linkToAdd")
             file.append(htmlToAppend.text)
+            
+            //Insert breaks and page separator indicator so it is easy to distinguish between sections of combined page
             file.append("<br>")
             file.append("<p>===========================================================</p>")
             file.append("<br>")
 
             //Get next section to add
             sectionToBeAdd = sectionToBeAdd.getNext(sections)
-            testVar++
 		}
 	}
 	
 	void addCombinedLinksToNavigation(String docToLink) {
+
         //Get navigation file to modify
         File navFile = new File("${project.buildDir}/documentation/All/navigation.html")
         //Get text of file to modify
@@ -124,5 +116,22 @@ class CombineDocsTask extends SourceTask {
             //Replace old text contents with link added contents
             navFile.text = navContents
         }
+    }
+    
+    void cleanUpCombinedDocHTML(File fileToCleanUp) {
+    
+        //Get contents of file to clean up
+        String contents = fileToCleanUp.getText( 'UTF-8' )
+        
+        //Remove header element tags (this moves the header text to above the individual section instead of stacked at the top of the combined doc)
+        contents = contents.replaceAll("<header>", '')
+        contents = contents.replaceAll("</header>", '')
+        
+        //Remove text of Next and Previous buttons (the html elements remain but without text they do not appear on the page)
+        contents = contents.replaceAll(">Previous<", "><")
+        contents = contents.replaceAll(">Next<", "><")
+        
+        //Set file to now cleaned up contents 
+        fileToCleanUp.text = contents
     }
 }
