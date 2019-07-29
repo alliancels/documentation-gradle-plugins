@@ -36,7 +36,7 @@ class CombineDocsTask extends SourceTask {
 
     void createAllInOnePage() {
 
-        File docBeingGenerated = new File("${project.buildDir}/documentation/All/AllDocsInOne.html")
+        File docBeingGenerated = new File("${project.buildDir}/documentation/All/AllDocsCombined.html")
         docBeingGenerated.createNewFile()
         docBeingGenerated.text = ''
         
@@ -58,15 +58,23 @@ class CombineDocsTask extends SourceTask {
             contents = contents.replaceAll(">Previous<", "><")
             contents = contents.replaceAll(">Next<", "><")
             individualDocBeingGenerated.text = contents
+            
+            //Add combined link to navigation page
+            String addDocToNav = "${it}"
+            addCombinedLinksToNavigation(addDocToNav)
 		}
 		
 		//Remove unwanted hmtl bits (hide next and previous links and move headers to above individual sections)
-		String contents = new File("${project.buildDir}/documentation/All/AllDocsInOne.html").getText( 'UTF-8' )
+		String contents = new File("${project.buildDir}/documentation/All/AllDocsCombined.html").getText( 'UTF-8' )
 		contents = contents.replaceAll("<header>", '')
 		contents = contents.replaceAll("</header>", '')
 		contents = contents.replaceAll(">Previous<", "><")
 		contents = contents.replaceAll(">Next<", "><")
 		docBeingGenerated.text = contents
+        
+        //Add combined link to navigation page 
+        String addCombinedDocToNav = "AllDocsCombined"
+        addCombinedLinksToNavigation(addCombinedDocToNav)
     }
 	
 	void navigateDocDirectoryToBuildAllInOnePage(Section section, File file) {
@@ -98,4 +106,23 @@ class CombineDocsTask extends SourceTask {
             testVar++
 		}
 	}
+	
+	void addCombinedLinksToNavigation(String docToLink) {
+        //Get navigation file to modify
+        File navFile = new File("${project.buildDir}/documentation/All/navigation.html")
+        //Get text of file to modify
+        String navContents = navFile.getText( 'UTF-8' )
+        //Create link to be added
+        String linkToAdd = docToLink + ".html"
+        //Create hmtl to be added
+        String htmlToAdd = "<li><a href=\"" + linkToAdd + "\" target=\"sectionFrame\">" + docToLink + "</a>" + "</li>" + "\r\n" + "</div>"
+        //If combined link isn't already added
+        if(!navContents.contains(linkToAdd))
+        {
+            //Replace the first instance of "</div"> with html generated above
+            navContents = navContents.replaceFirst("</div>", htmlToAdd)
+            //Replace old text contents with link added contents
+            navFile.text = navContents
+        }
+    }
 }
