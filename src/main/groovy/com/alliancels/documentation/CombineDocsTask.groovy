@@ -84,9 +84,24 @@ class CombineDocsTask extends SourceTask {
 		{
             //Get relative path to section to be added
             String pathToAdd = getRelativePath(sectionToBeAdd.folder, project.projectDir)
-		
+            
+            //Get name of link file to be created by copying file name in converted markdown folder
+            String pathToFileName = project.buildDir.toString() + "\\documentation\\convertedMarkdown\\" + pathToAdd
+            File fileToCopyNameFrom = new File (pathToFileName)
+            File[] listFiles = fileToCopyNameFrom.listFiles()
+            //Default file name to "section.html"
+            String fileNameToCopy = "section.html"
+            //Get name of first file in list (ignore directories)
+            for(int i = 0; i < listFiles.length; i++)
+            {
+                if(listFiles[i].isFile())
+                {
+                    fileNameToCopy = listFiles[i].getName()
+                }
+            }
+            
             //Create link for section to be added
-            String linkToAdd = pathToAdd + "/section.html"
+            String linkToAdd = pathToAdd + "\\" + fileNameToCopy
 		
             //Append section to combined page
             File htmlToAppend = new File("${project.buildDir}/documentation/All/$linkToAdd")
