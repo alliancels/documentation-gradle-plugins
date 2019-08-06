@@ -62,16 +62,29 @@ class NavigationHtmlTask extends SourceTask {
             if (previousGroup != null && nextGroup != null) {
                 String previousLink = getRelativePath(previousGroup.folder, it.folder)
                 String nextLink = getRelativePath(nextGroup.folder, it.folder)
-                previousLink += '/section.html'
-                nextLink += '/section.html'
+                
+                File previousLinkFile = getLinkOutputFile(previousGroup.folder)
+                File nextLinkFile = getLinkOutputFile(nextGroup.folder)
+                
+                previousLink += "\\" + previousLinkFile.getName()
+                nextLink += "\\" + nextLinkFile.getName()
+                
                 navigationLinkHtml = HtmlPresenter.getPreviousNextLinks(previousLink, nextLink)
             } else if (previousGroup == null && nextGroup != null) {
                 String nextLink = getRelativePath(nextGroup.folder, it.folder)
-                nextLink += '/section.html'
+                
+                File nextLinkFile = getLinkOutputFile(nextGroup.folder)
+                
+                nextLink += "\\" + nextLinkFile.getName()
+                
                 navigationLinkHtml = HtmlPresenter.getNextLink(nextLink)
             } else if (previousGroup != null && nextGroup == null) {
                 String previousLink = getRelativePath(previousGroup.folder, it.folder)
-                previousLink += '/section.html'
+                
+                File previousLinkFile = getLinkOutputFile(previousGroup.folder)
+                
+                previousLink += "\\" + previousLinkFile.getName()
+                
                 navigationLinkHtml = HtmlPresenter.getPreviousLink(previousLink)
             } else {
                 GradleException("No next or previous section was found for " + it.folder.toString())
@@ -118,9 +131,10 @@ class NavigationHtmlTask extends SourceTask {
         //Increment node start html element counter
         numOfNodeStartsWithoutNodeEnds++
         
-        //Add link to navigation
+        //Add link to navigation (keep unique file name)
         String relativePath = getRelativePath(section.folder, project.projectDir)
-        String link = relativePath + "/section.html"
+        File getLinkFile = getLinkOutputFile(section.folder)
+        String link = relativePath + "\\" + getLinkFile.getName()
         navigationPaneContents += htmlPresenter.getNavigationLink(link, section.name)
 
         Section nextGroup = section.getNext(sections)
@@ -147,10 +161,27 @@ class NavigationHtmlTask extends SourceTask {
     }
 
     File getLinkOutputFile(File inputFolder) {
+
         String relativePath = getRelativePath(inputFolder, project.projectDir)
         File outputPath = new File (linkOutputDir, relativePath)
         outputPath.mkdirs()
-        return new File(outputPath, 'section.html')
+        
+        //Get name of link file to be created by copying file name in converted markdown folder
+        String pathToFileName = project.buildDir.toString() + "\\documentation\\convertedMarkdown\\" + relativePath
+        File fileToCopyNameFrom = new File (pathToFileName)
+        File[] listFiles = fileToCopyNameFrom.listFiles()
+        //Default file name to "section.html"
+        String fileNameToCopy = "section.html"
+        //Get name of first file in list (ignore directories)
+        for(int i = 0; i < listFiles.length; i++)
+        {
+            if(listFiles[i].isFile())
+            {
+                fileNameToCopy = listFiles[i].getName()
+            }
+        }
+        
+        return new File(outputPath, fileNameToCopy)
     }
 
     String getRelativePath(File file, File root) {
