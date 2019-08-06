@@ -78,7 +78,7 @@ class AssembleDocumentTask extends SourceTask {
         def relativePath = getRelativePath(inputFile)
         File outputPath = new File (outputDir, relativePath).parentFile
         outputPath.mkdirs()
-        return new File(outputPath, 'section.html')
+        return new File(outputPath, inputFile.getName())
     }
 
     String getRelativePath(File file) {

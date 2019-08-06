@@ -72,7 +72,7 @@ class DocumentationPlugin implements Plugin<Project> {
             source links, convertedMarkdown
             previewEnabled = document.previewEnabled
             document.sourceFolders.each {
-                include "${it}/**/section.html"
+                include "${it}/**/*.html"
             }
         }
         
