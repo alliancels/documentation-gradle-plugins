@@ -9,6 +9,9 @@ import org.jsoup.select.Elements
  * Automatically find and replace glossary terms with glossary links
  */
 class GlossaryAutoLink {
+    static List<String> listOfTerms = []
+    static List<String> listOfLinks = []
+    static List<String> listOfAnchors = []
     
     static void autoLinkGlossary(List<Section> sectionList, File buildDirectory, File sourceDirectory) {
 
@@ -18,7 +21,8 @@ class GlossaryAutoLink {
             println("Glossary found!")
             
             //
-            createLinkAndTermLists(sectionList, glossarySectionList, buildDirectory, sourceDirectory)
+            createTermsLists(sectionList, glossarySectionList, sourceDirectory, buildDirectory)
+            autoLinkTerms(sectionList, sourceDirectory, buildDirectory)
         }
         else
         {
@@ -45,116 +49,107 @@ class GlossaryAutoLink {
         return glossarySectionList
     }
     
-    static void createLinkAndTermLists(List<Section> sectionList, List<Section> glossarySectionList, File buildDirectory, File sourceDirectory) {
+    static void createTermsLists(List<Section> sectionList, List<Section> glossarySectionList, File sourceDirectory, File buildDirectory) {
     
-        println("Creating glossary term list...")
+        println("Creating glossary term, link, and anchor lists...")
         
-        List<String> listOfTerms = []
-        List<String> listOfLinks = []
+        listOfTerms = []
+        listOfLinks = []
+        listOfAnchors = []
         
         glossarySectionList.each {
-            File glossaryFile = it.folder
-            println("Gls: " + glossaryFile)
-            println("Src: " + sourceDirectory)
-            println("Dst: " + buildDirectory)
+            File glossaryFile = getBuildFileFromSourceFile(it.folder, sourceDirectory, buildDirectory)
             
-            String glsString = glossaryFile.toString()
-            String srcString = sourceDirectory.toString()
-            String dstString = buildDirectory.toString()
-            
-            println("glsString: " + glsString)
-            println("srcString: " + srcString)
-            println("dstString: " + dstString)
-            
-            String glossaryFileString = glsString - srcString
-            println("Glossary file postfix: " + glossaryFileString) 
-            
-            glossaryFileString = dstString + "/documentation/All" + glossaryFileString
-            println("Glossary file: " + glossaryFileString)
+            String glossaryFileString = glossaryFile.toString()
             
             glossaryFileString = glossaryFileString + "/Glossary.html"
-            println("Glossary file complete: " + glossaryFileString)
             
             glossaryFile = new File(glossaryFileString)
-            println(glossaryFile)
         
             String glossaryFileText = glossaryFile.getText()
             
             Document document = Jsoup.parse(glossaryFileText, "UTF-8")
             
-            //Get values in first column
             Elements terms = document.select("td:eq(0)").select("td")
             Elements links = document.select("td:eq(1)").select("td")
+            Elements anchors = document.select("td:eq(2)").select("td")
             println(terms)
             println(links)
+            println(anchors)
             
             listOfTerms += terms.eachText()
             listOfLinks += links.eachText()
+            listOfAnchors += anchors.eachText()
             println(listOfTerms)
             println(listOfLinks)
+            println(listOfAnchors)
         }
         
-        //autoLinkGlossaries(sectionList, listOfTerms, listOfLinks)
-        
-        
         println("++++++++++++++++++++++++++++++++++++++")
         println("++++++++++++++++++++++++++++++++++++++")
         println("++++++++++++++++++++++++++++++++++++++")
         println("======================================")
         println("======================================")
         println("======================================")
+    }
+    
+    static void autoLinkTerms(List<Section> sectionList, File sourceDirectory, File buildDirectory) {
         
-        
-        
-        //FUNCTION IN LINE
         println("Auto linking terms...")
         
         sectionList.each {
-            File eachHypertextFile = it.folder
-            println("Hyp: " + eachHypertextFile)
-            println("Src: " + sourceDirectory)
-            println("Dst: " + buildDirectory)
+            File eachHypertextFile = getBuildFileFromSourceFile(it.folder, sourceDirectory, buildDirectory)
+                        
+            FilenameFilter htmlFileFilter = new FilenameFilter() {
+                public boolean accept(File f, String name)
+                {
+                    return name.endsWith("html")
+                }
+            }
             
-            String hypString = eachHypertextFile.toString()
-            String srcString = sourceDirectory.toString()
-            String dstString = buildDirectory.toString()
+            File[] htmlFileList = eachHypertextFile.listFiles(htmlFileFilter)
             
-            println("hypString: " + hypString)
-            println("srcString: " + srcString)
-            println("dstString: " + dstString)
+            File htmlFile = htmlFileList[0]
             
-            String eachHypertextString = hypString - srcString
-            println("Hypertext file postfix: " + eachHypertextString) 
+            println("this is the html file: " + htmlFile)
             
-            eachHypertextString = dstString + "/documentation/All" + eachHypertextString
-            println("Hypertext file: " + eachHypertextString)
+            String htmlFileText = htmlFile.text
             
-            //eachHypertextString = eachHypertextString + "/section.html"
-            //println("Hypertext file complete: " + eachHypertextString)
+            //htmlFile.text = htmlFileText
             
-            eachHypertextFile = new File(eachHypertextString)
-            println("Each hypertext file: " + eachHypertextFile)
+            println("replaced!")
             
-            boolean testIsFile = eachHypertextFile.isFile()
-            println("File? " + testIsFile)
-            println("Folder? " + !testIsFile)
+            for(int i = 0; i < listOfTerms.size; i++)
+            {
+                htmlFileText = htmlFileText.replaceAll(("#" + listOfTerms[i]), listOfLinks[i])
+            }
             
-            println(eachHypertextFile.listFiles())
-            
-            //TODO:
-            //-Find the html file in the folder resolved above
-            //-Find and replace each term with each link in each html file
+            htmlFile.text = htmlFileText
         }
     }
     
-    static void autoLinkGlossaries(List<Section> sectionList, List<String> listOfTerms, List<String> listOfLinks) {
-
-        println("Auto linking terms...")
+    static File getBuildFileFromSourceFile(File sourceFile, File sourceDirectory, File buildDirectory) {
         
-        //sectionList.each {
-        //    println(it.folder)
-            
-            
-        //}
+        println("Source File: " + sourceFile)
+        println("Source Directory: " + sourceDirectory)
+        println("Build Directory: " + buildDirectory)
+        
+        String filString = sourceFile.toString()
+        String srcString = sourceDirectory.toString()
+        String bldString = buildDirectory.toString()
+        
+        println("Source File String: " + filString)
+        println("Source Directory String: " + srcString)
+        println("Build Directroy String: " + bldString)
+        
+        String buildFileString = filString - srcString
+        println("Build file postfix: " + buildFileString) 
+        
+        buildFileString = bldString + "/documentation/All" + buildFileString
+        println("Build file: " + buildFileString)
+        
+        File buildFile = new File(buildFileString)
+        
+        return buildFile
     }
 }
