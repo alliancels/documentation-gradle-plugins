@@ -115,13 +115,21 @@ class GlossaryAutoLink {
             
             String htmlFileText = htmlFile.text
             
-            //htmlFile.text = htmlFileText
-            
             println("replaced!")
+            
+            //String linkToAdd = buildDirectory.toString().replace("\\", "/") + "/documentation/All/"
+            
+            String htmlLinkPrefix = "<a href="
+            String htmlLinkInfix = ">"
+            String htmlLinkPostfix = "</a>"
             
             for(int i = 0; i < listOfTerms.size; i++)
             {
-                htmlFileText = htmlFileText.replaceAll(("#" + listOfTerms[i]), listOfLinks[i])
+                String linkToAdd = buildDirectory.toString().replace("\\", "/") + "/documentation/All/"
+                
+                linkToAdd = htmlLinkPrefix +  linkToAdd + listOfLinks[i] + htmlLinkInfix + listOfTerms[i] + htmlLinkPostfix
+                
+                htmlFileText = htmlFileText.replaceAll(("!" + listOfTerms[i]), linkToAdd)
             }
             
             htmlFile.text = htmlFileText
