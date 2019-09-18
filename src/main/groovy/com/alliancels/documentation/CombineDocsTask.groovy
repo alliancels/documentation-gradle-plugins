@@ -30,10 +30,10 @@ class CombineDocsTask extends SourceTask {
             sections.add((new LayoutParser()).createSection(it))
         }
         
-        println("Updating links...")
-        println(project.buildDir)
-        println(project.projectDir)
+        println("Updating glossary terms with links...")
         GlossaryAutoLink.autoLinkGlossary(sections, project.buildDir, project.projectDir)
+        
+        println("Generating combined docs...")
         createCombinedDocs()
         
         
