@@ -19,7 +19,7 @@ buildscript {
         //For Gradle 3.x:
         //classpath 'com.alliancels:documentation-gradle-plugins:0.0.14'
         //For Gradle 5.x:
-        classpath 'com.alliancels:documentation-gradle-plugins:0.1.3'
+        classpath 'com.alliancels:documentation-gradle-plugins:0.1.4'
     }
 }
 ```
@@ -203,6 +203,26 @@ and section numbers are added.
 
 This task can be invoked with the "combineAll" command; the task is not automatically ran when "assembleAll" is invoked 
 because combined documentation doesn't always need to be generated and it may unnecessarily lengthen build times.
+
+#### Glossary Auto Linking
+
+Included in the "combineAll" command is automatic linking of glossary terms. Each file in the documentation that contains "Glossary" 
+or "glossary" will be examined for a table of terms and corresponding links and anchors. Terms are in the form of "!Term!". Links are file paths to
+a specific ".html" file in the build directory. Anchors are in the form of "#anchor-example"; if no anchor wanted/needed a "." should be placed 
+in the anchor column (see example table below). 
+
+| Term    | Link                              | Anchor        |
+|:--------|:----------------------------------|:--------------|
+| !Term1! | ExampleDocument/exampleDoc1.html  | .             |
+| !Term2! | ExampleDocument/exampleDoc2.html  | #example-doc2 |
+
+Each "!Term!" in the documentation is then automatically replaced by its corresponding link, and anchor if wanted/needed.
+
+#### Combined Documentation Auto Linking
+
+Links in the combined documentation are automatically updated to navigate/jump-to the appropriate place in the combined documentation.
+This is done by replacing direct reference links with corresponding jump-to links. If the combined document contains a link external 
+to itself it will attempt to link to the external document if it exists. 
 
 ### Check Documentation
 

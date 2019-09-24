@@ -23,7 +23,7 @@ dependencies {
 }
 
 group = 'com.alliancels'
-version = '0.1.3'
+version = '0.1.4'
 
 task sourceJar(type: Jar) {
     from sourceSets.main.allGroovy
