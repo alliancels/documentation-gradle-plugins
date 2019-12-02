@@ -66,8 +66,8 @@ class NavigationHtmlTask extends SourceTask {
                 File previousLinkFile = getLinkOutputFile(previousGroup.folder)
                 File nextLinkFile = getLinkOutputFile(nextGroup.folder)
                 
-                previousLink += "\\" + previousLinkFile.getName()
-                nextLink += "\\" + nextLinkFile.getName()
+                previousLink += "/" + previousLinkFile.getName()
+                nextLink += "/" + nextLinkFile.getName()
                 
                 navigationLinkHtml = HtmlPresenter.getPreviousNextLinks(previousLink, nextLink)
             } else if (previousGroup == null && nextGroup != null) {
@@ -75,7 +75,7 @@ class NavigationHtmlTask extends SourceTask {
                 
                 File nextLinkFile = getLinkOutputFile(nextGroup.folder)
                 
-                nextLink += "\\" + nextLinkFile.getName()
+                nextLink += "/" + nextLinkFile.getName()
                 
                 navigationLinkHtml = HtmlPresenter.getNextLink(nextLink)
             } else if (previousGroup != null && nextGroup == null) {
@@ -83,7 +83,7 @@ class NavigationHtmlTask extends SourceTask {
                 
                 File previousLinkFile = getLinkOutputFile(previousGroup.folder)
                 
-                previousLink += "\\" + previousLinkFile.getName()
+                previousLink += "/" + previousLinkFile.getName()
                 
                 navigationLinkHtml = HtmlPresenter.getPreviousLink(previousLink)
             } else {
