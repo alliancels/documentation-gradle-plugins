@@ -26,6 +26,7 @@ class DocumentationPlugin implements Plugin<Project> {
             // Create a task to convert all markdown files
             project.task('markdownToHtml', type: MarkdownToHtmlTask) {
                 description = "Convert all markdown files to html files"
+                outputs.upToDateWhen {convertedMarkdown.exists()}
                 include "**/*.md"
                 outputDir = convertedMarkdown
                 source getAllSourceFolders(extension.documents)
@@ -49,6 +50,7 @@ class DocumentationPlugin implements Plugin<Project> {
 
         project.task("copyImages${document.name}", type: FileCopyTask) {
             description = "Copy images into the output for the ${document.name} document."
+            outputs.upToDateWhen {outputFolder.exists()}
             include "**/Images/**"
             outputDir = outputFolder
             source document.sourceFolders
@@ -56,6 +58,7 @@ class DocumentationPlugin implements Plugin<Project> {
 
         project.task("navigation${document.name}", type: NavigationHtmlTask) {
             description = "Create navigation page and navigation links for the ${document.name} document."
+            outputs.upToDateWhen {links.exists()}
             include "**/layout.yaml"
             linkOutputDir = links
             navigationOutputDir = outputFolder
@@ -66,6 +69,7 @@ class DocumentationPlugin implements Plugin<Project> {
         project.task("assemble${document.name}", type: AssembleDocumentTask,
                 dependsOn: ['markdownToHtml', "copyImages${document.name}", "navigation${document.name}"]) {
             description = "Assemble the ${document.name} document."
+            outputs.upToDateWhen {false}
             outputDir = outputFolder
             linkDir = links
             convertedMarkdownDir = convertedMarkdown
@@ -91,7 +95,7 @@ class DocumentationPlugin implements Plugin<Project> {
             }
         }
 
-        project.task("build${document.name}", dependsOn:["assemble${document.name}", "check${document.name}"]) {
+        project.task("build${document.name}", dependsOn:["assemble${document.name}", "check${document.name}", "combine${document.name}"]) {
             description = "Build the ${document.name} document, by assembling it and checking it for problems."
         }
     }
