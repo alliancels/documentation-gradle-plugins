@@ -258,7 +258,7 @@ documentation {
 ### Build Documentation
 
 For each `Document` object defined in the build script, a task called `build<document name>' will be created.
-This simply chains the "assemble" and "check" tasks into a single command.
+This simply chains the "assemble", "check", and "combine" tasks into a single command.
 
 # Build
 
