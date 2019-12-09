@@ -26,7 +26,7 @@ class DocumentationPlugin implements Plugin<Project> {
             // Create a task to convert all markdown files
             project.task('markdownToHtml', type: MarkdownToHtmlTask) {
                 description = "Convert all markdown files to html files"
-                outputs.upToDateWhen {convertedMarkdown.exists()}
+                outputs.upToDateWhen {false}
                 include "**/*.md"
                 outputDir = convertedMarkdown
                 source getAllSourceFolders(extension.documents)
@@ -50,7 +50,7 @@ class DocumentationPlugin implements Plugin<Project> {
 
         project.task("copyImages${document.name}", type: FileCopyTask) {
             description = "Copy images into the output for the ${document.name} document."
-            outputs.upToDateWhen {outputFolder.exists()}
+            outputs.upToDateWhen {false}
             include "**/Images/**"
             outputDir = outputFolder
             source document.sourceFolders
@@ -58,7 +58,7 @@ class DocumentationPlugin implements Plugin<Project> {
 
         project.task("navigation${document.name}", type: NavigationHtmlTask) {
             description = "Create navigation page and navigation links for the ${document.name} document."
-            outputs.upToDateWhen {links.exists()}
+            outputs.upToDateWhen {false}
             include "**/layout.yaml"
             linkOutputDir = links
             navigationOutputDir = outputFolder
@@ -82,6 +82,7 @@ class DocumentationPlugin implements Plugin<Project> {
         
         project.task("combine${document.name}", type: CombineDocsTask) {
             description = "Create combined pages for the ${document.name} document."
+            outputs.upToDateWhen {false}
             include "**/layout.yaml"
             documentSourceDirs = document.sourceFolders
             source document.sourceFolders
@@ -89,6 +90,7 @@ class DocumentationPlugin implements Plugin<Project> {
 
         project.task("check${document.name}", type: CheckDocumentTask) {
             description = "Check the ${document.name} document for problems."
+            outputs.upToDateWhen {false}
             source outputFolder
             document.sourceFolders.each {
                 include "${it}/**/*.html"
