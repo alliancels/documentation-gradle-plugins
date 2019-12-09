@@ -48,11 +48,6 @@ class GlossaryAutoLink {
             }
         }
         
-        if(glossarySectionList.size() > 0)
-        {
-            println("Number of glossaries found: " + glossarySectionList.size())
-        }
-        
         return glossarySectionList
     }
     
@@ -157,8 +152,6 @@ class GlossaryAutoLink {
 
             htmlFile.text = htmlFileText
         }
-        
-        println("Terms and links updated!")
     }
     
     static File getBuildFileFromSourceFile(File sourceFile, File sourceDirectory, File buildDirectory) {

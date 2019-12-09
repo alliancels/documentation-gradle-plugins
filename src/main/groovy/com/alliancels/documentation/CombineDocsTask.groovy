@@ -30,10 +30,10 @@ class CombineDocsTask extends SourceTask {
             sections.add((new LayoutParser()).createSection(it))
         }
         
-        println("Updating glossary terms and links...")
+        //Updating glossary terms and links
         GlossaryAutoLink.autoLinkGlossary(sections, project.buildDir, project.projectDir)
         
-        println("Generating combined docs...")
+        //Generate combined docs
         createCombinedDocs()
     }
 
@@ -55,18 +55,16 @@ class CombineDocsTask extends SourceTask {
 
     void createCombinedDocs() {
 
-        //Create empty file for all in one combined doc
+        //Create all in one combined doc
         File docBeingGenerated = new File("${project.buildDir}/documentation/All/AllDocsCombined.html")
         docBeingGenerated.createNewFile()
         docBeingGenerated.text = ''
-        println("Generated combined doc/page for: AllDocsCombined")
         
-        //Create a combined doc page for each folder in source directory
+        //Create a combined doc for each folder in source directory
         documentSourceDirs.each {
             File individualDocBeingGenerated = new File("${project.buildDir}/documentation/All/${it}.html")
             individualDocBeingGenerated.createNewFile()
             individualDocBeingGenerated.text = ''
-            println("Generated combined doc/page for: $it")
         
             //The order of how each page is added to the combined page matches the order followed in navigation
             //Add page individual document as well as all combined document
@@ -92,8 +90,6 @@ class CombineDocsTask extends SourceTask {
         //Add combined link to navigation page 
         String addCombinedDocToNav = "AllDocsCombined"
         addCombinedLinksToNavigation(addCombinedDocToNav)
-        
-        println("Docs generated!")
     }
 	
 	void navigateDocDirectoryToBuildCombinedPage(Section section, File file) {
